@@ -1,26 +1,35 @@
 version: 2.0
 
 pipelines:
-  - name: Install Dependencies and Run Script
+  - name: Install and Run MAIN Script
     trigger_mode: ON_EVERY_PUSH
     steps:
-      - action: Install dependencies
+      - action: Prepare Environment
         script:
-          # Use virtual environment to avoid permission issues
+          # Verify Python and pip are installed
+          - python3 --version
+          - pip --version
+          # Print PATH for debugging
+          - echo "PATH: $PATH"
+          # Create a virtual environment to isolate dependencies
           - python3 -m venv venv
           - source venv/bin/activate
+          # Install dependencies from requirements.txt
           - pip install -r requirements.txt
-          # Output installed packages for verification
+          # List installed packages for debugging
           - pip list
+
       - action: Run MAIN Script
         script:
-          # Ensure MAIN file is executable
+          # Print current directory and files for debugging
+          - echo "Current Directory:"
+          - ls -l
+          # Ensure MAIN script is executable
           - chmod +x MAIN
-          # Run the MAIN script
-          - ./MAIN
-          # OR use Python to run the script
-          # python3 MAIN.py
-      - action: Clean up
+          # Attempt to execute MAIN script
+          - ./MAIN || python3 MAIN.py
+
+      - action: Clean Up
         script:
           # Deactivate virtual environment
           - deactivate
