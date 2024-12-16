@@ -7,29 +7,46 @@ pipelines:
       - action: Prepare Environment
         script:
           # Verify Python and pip are installed
-          - python3 --version
-          - pip --version
+          - echo "Checking Python and pip versions..."
+          - python3 --version || { echo "Python3 is not installed"; exit 1; }
+          - pip --version || { echo "pip is not installed"; exit 1; }
+
           # Print PATH for debugging
           - echo "PATH: $PATH"
+
           # Create a virtual environment to isolate dependencies
-          - python3 -m venv venv
+          - echo "Creating virtual environment..."
+          - python3 -m venv venv || { echo "Failed to create virtual environment"; exit 1; }
           - source venv/bin/activate
+
           # Install dependencies from requirements.txt
-          - pip install -r requirements.txt
+          - echo "Installing dependencies..."
+          - if [ -f requirements.txt ]; then
+              pip install -r requirements.txt || { echo "Failed to install dependencies"; exit 1; };
+            else
+              echo "requirements.txt not found"; exit 1;
+            fi
+
           # List installed packages for debugging
+          - echo "Installed packages:"
           - pip list
 
       - action: Run MAIN Script
         script:
           # Print current directory and files for debugging
           - echo "Current Directory:"
-          - ls -l
+          - ls -l || { echo "Failed to list directory contents"; exit 1; }
+
           # Ensure MAIN script is executable
-          - chmod +x MAIN
+          - echo "Making MAIN script executable..."
+          - chmod +x MAIN || echo "MAIN script is not found or cannot be made executable"
+
           # Attempt to execute MAIN script
-          - ./MAIN || python3 MAIN.py
+          - echo "Executing MAIN script..."
+          - ./MAIN || python3 MAIN.py || { echo "Failed to execute MAIN script"; exit 1; }
 
       - action: Clean Up
         script:
           # Deactivate virtual environment
-          - deactivate
+          - echo "Cleaning up virtual environment..."
+          - deactivate || echo "No virtual environment to deactivate"
