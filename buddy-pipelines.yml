@@ -1,0 +1,16 @@
+version: 2.0
+
+pipelines:
+  - name: Run MAIN Script
+    trigger_mode: ON_EVERY_PUSH
+    steps:
+      - action: Install dependencies and execute script
+        script:
+          # Install Python dependencies from requirements.txt
+          - pip install -r requirements.txt
+          # Ensure MAIN file is executable (if needed)
+          - chmod +x MAIN
+          # Execute MAIN script
+          - ./MAIN
+          # OR use the Python interpreter to run the script
+          # python3 MAIN.py
