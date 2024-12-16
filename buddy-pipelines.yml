@@ -1,16 +1,26 @@
 version: 2.0
 
 pipelines:
-  - name: Run MAIN Script
+  - name: Install Dependencies and Run Script
     trigger_mode: ON_EVERY_PUSH
     steps:
-      - action: Install dependencies and execute script
+      - action: Install dependencies
         script:
-          # Install Python dependencies from requirements.txt
+          # Use virtual environment to avoid permission issues
+          - python3 -m venv venv
+          - source venv/bin/activate
           - pip install -r requirements.txt
-          # Ensure MAIN file is executable (if needed)
+          # Output installed packages for verification
+          - pip list
+      - action: Run MAIN Script
+        script:
+          # Ensure MAIN file is executable
           - chmod +x MAIN
-          # Execute MAIN script
+          # Run the MAIN script
           - ./MAIN
-          # OR use the Python interpreter to run the script
+          # OR use Python to run the script
           # python3 MAIN.py
+      - action: Clean up
+        script:
+          # Deactivate virtual environment
+          - deactivate
